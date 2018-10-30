@@ -1,5 +1,8 @@
+/* ---------- STL Libraries ---------- */
+
 // IO library
 #include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -8,125 +11,165 @@
 #include <algorithm>
 #include <cmath>
 #include <numeric>
+#include <random>
 
 // container library
+#include <array>
+#include <bitset>
 #include <deque>
-#include <list>
 #include <map>
 #include <queue>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
-// namespace
+/* ---------- Namespace ---------- */
+
 using namespace std;
 
-// typedef
-typedef long long ll;
-typedef vector<int> VI;
-typedef vector<VI> VVI;
-typedef vector<ll> VL;
-typedef vector<VL> VVL;
-typedef vector<string> VS;
-typedef vector<bool> VB;
-typedef vector<VB> VVB;
+/* ---------- Type Abbreviation ---------- */
 
-// conversion
+template <typename T>
+using PQ = priority_queue<T>;
+template <typename T>
+using GPQ = priority_queue<T, vector<T>, greater<T>>;
+
+using ll = long long;
+
+#define fst first
+#define snd second
+#define mp make_pair
+#define mt make_tuple
+
+/* ---------- conversion ---------- */
+
 #define INT(c) static_cast<int>(c)
 #define CHAR(n) static_cast<char>(n)
 #define LL(n) static_cast<ll>(n)
+#define DOUBLE(n) static_cast<double>(n)
 
-// container
-#define EACH(i, c) for (auto i = (c).begin(); i != (c).end(); i++)
-#define SORT(c) sort((c).begin(), (c).end())
-#define GSORT(c) sort((c).begin(), (c).end(), greater<decltype((c).front())>())
-#define SZ(x) (INT((x).size()))
-#define MEMSET(c, v) memset((c), v, sizeof(c))
+/* ---------- container ---------- */
 
-// repetition
-#define FOR(i, a, b) for (int i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-#define RFOR(i, a, b) for (int i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
+#define ALL(v) (v).begin(), (v).end()
+#define SIZE(v) (LL((v).size()))
 
-// constant
+#define FIND(v, k) (v).find(k) != (v).end()
+#define VFIND(v, k) find(ALL(v), k) != (v).end()
+
+#define gsort(b, e) sort(b, e, greater<decltype(*b)>())
+
+/* ----------- debug ---------- */
+
+template <class T>
+ostream& operator<<(ostream& os, vector<T> v) {
+    os << "[";
+    for (auto vv : v)
+        os << vv << ",";
+    return os << "]";
+}
+
+template <class T>
+ostream& operator<<(ostream& os, set<T> v) {
+    os << "[";
+    for (auto vv : v)
+        os << vv << ",";
+    return os << "]";
+}
+
+template <class L, class R>
+ostream& operator<<(ostream& os, pair<L, R> p) {
+    return os << "(" << p.fst << "," << p.snd << ")";
+}
+
+/* ---------- Constants ---------- */
+
 const ll MOD = 1e9 + 7;
-// const int INF = 1<<25;
-// const ll INF = 1LL<<50;
-// const int dx[4] = {0, -1, 1, 0};
-// const int dy[4] = {-1, 0, 0, 1};
-// const int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+// const int INF = 1 << 25;
+// const ll INF = 1LL << 50;
+// const double PI = acos(-1);
+// const double EPS = 1e-10;
+// mt19937 mert(LL(time(0)));
 
-// debug
-#define test(x) cout << #x << " = " << x << endl
+/* ---------- Short Functions ---------- */
 
-// answer output
-#define Yes(c) cout << ((c) ? "Yes" : "No") << endl;
-#define YES(c) cout << ((c) ? "YES" : "NO") << endl;
-#define yes(c) cout << ((c) ? "yes" : "no") << endl;
+template <typename T>
+T sq(T a) {
+    return a * a;
+}
 
-#define possible(c) cout << ((c) ? "possible" : "impossible") << endl;
-#define POSSIBLE(c) cout << ((c) ? "POSSIBLE" : "INPOSSIBLE") << endl;
+template <typename T>
+T gcd(T a, T b) {
+    if (a > b) return gcd(b, a);
+    return a == 0 ? b : gcd(b % a, a);
+}
 
+template <typename T, typename U>
+T mypow(T b, U n) {
+    if (n == 0) return 1;
+    if (n == 1) return b /* % MOD */;
+    if (n % 2 == 0) {
+        return mypow(b * b /* % MOD */, n / 2);
+    } else {
+        return mypow(b, n - 1) * b /* % MOD */;
+    }
+}
 
-// --------------------------------------------------------
+ll pcnt(ll b) {
+    return __builtin_popcountll(b);
+}
 
-
-vector<VVL> dp(310, VVL(310, VL(310, 0)));
+/* v-v-v-v-v-v-v-v-v Main Part v-v-v-v-v-v-v-v-v */
 
 int main() {
-  cin.tie(0);
-  ios::sync_with_stdio(false);
+    int N, K;
+    string S;
+    cin >> N >> S;
+    K = S.length();
 
-  ll N;
-  string s;
-  cin >> N >> s;
-  ll S = SZ(s);
+    /* ---------- !!! WARNING !!! ---------- */
+    if (N > 300) terminate();
 
-  if (N > 300) {
-    cout << "f**k" << endl;
-    return 0;
-  }
+    ll dp[N + 1][N + 1];
+    fill(dp[0], dp[N + 1], 0);
+    dp[0][0] = 1;
+    // dp[i][j] = i文字打たれていて, j文字一致している
 
-  dp[0][0][0] = 1;
+    for (int q = 0; q < N; ++q) {
+        ll ndp[N + 1][N + 1];
+        fill(ndp[0], ndp[N + 1], 0);
 
-  NREP(i, N) {
-    REP(j, N + 1) {
-      REP(k, N + 1) {
-        cout << i << " : " << j << " : " << k << endl;
+        for (int i = 0; i <= N; ++i) {
+            for (int j = 0; j < i; ++j) {
+                // 追加する場合
+                ndp[i + 1][j] += dp[i][j] * 2;
+                ndp[i + 1][j] %= MOD;
 
-        if (j > k) {
+                // 削除する場合
+                ndp[i - 1][j] += dp[i][j];
+                ndp[i - 1][j] %= MOD;
+            }
+            // 正しい文字を打った場合
+            ndp[i + 1][i + 1] += dp[i][i];
+            ndp[i + 1][i + 1] %= MOD;
 
-          if (j > 0) {
-            dp[i][j][k] += dp[i - 1][j - 1][k];  // 0
-          }
-          if (j > S) {
-            dp[i][j][k] += dp[i - 1][j - 1][k];  // 文字数超過
-          }
-          dp[i][j][k] += dp[i - 1][j + 1][k];  // B
+            // 違う文字を打った場合
+            ndp[i + 1][i] += dp[i][i];
+            ndp[i + 1][i] %= MOD;
 
-        } else if (j == k) {
-
-          if (k <= S && j > 0) {
-            dp[i][j][k] += dp[i - 1][j - 1][k - 1];  // 1
-          }
-          dp[i][j][k] += dp[i - 1][j + 1][k];
-          dp[i][j][k] += dp[i - 1][j + 1][k + 1];  // B
+            // 削除する場合
+            // i = 0のケースに注意
+            ndp[max(0, i - 1)][max(0, i - 1)] += dp[i][i];
+            ndp[max(0, i - 1)][max(0, i - 1)] %= MOD;
         }
 
-        if (j == 0) {
-          dp[i][j][k] += dp[i - 1][0][k];  // B空打ち
+        for (int i = 0; i <= N; ++i) {
+            for (int j = 0; j <= N; ++j) {
+                dp[i][j] = ndp[i][j];
+            }
         }
-
-        dp[i][j][k] %= MOD;
-        test(dp[i][j][k]);
-      }
     }
-  }
 
-  cout << dp[N][S][S] << endl;
-  return 0;
+    cout << dp[K][K] << endl;
+    return 0;
 }
