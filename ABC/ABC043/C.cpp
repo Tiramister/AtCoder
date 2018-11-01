@@ -1,42 +1,31 @@
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-#include <vector>
-
-#define ll long long
 
 using namespace std;
 
-const int INF = 1e7;
-size_t N;
-int cost_min = INF;
-vector<int> a;
+const int INF = 1 << 30;
 
-int calc_cost(int b)
-{
-    int cost = 0;
-    for (size_t i = 0; i < N; i++) {
-        cost += (a[i] - b) * (a[i] - b);
-    }
-    return cost;
-}
-
-int main()
-{
+int main() {
+    int N;
     cin >> N;
-    a.resize(N);
 
-    for (size_t i = 0; i < N; i++) {
+    int a[N];
+    for (int i = 0; i < N; ++i) {
         cin >> a[i];
     }
 
-    for (int b = -100; b <= 100; b++) {
-        cost_min = min(cost_min, calc_cost(b));
+    int ans = INF;
+
+    for (int y = -100; y <= 100; ++y) {
+        int cost = 0;
+        // 全要素をyに変える場合のコスト
+
+        for (int i = 0; i < N; ++i) {
+            cost += (a[i] - y) * (a[i] - y);
+        }
+
+        ans = min(ans, cost);
     }
 
-    cout << cost_min << endl;
-
+    cout << ans << endl;
     return 0;
 }

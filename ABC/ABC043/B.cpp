@@ -1,35 +1,25 @@
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-#include <vector>
-
-#define ll long long
+#include <string>
 
 using namespace std;
 
-string s;
-string out;
+int main() {
+    string S;
+    cin >> S;
 
-void ope(char a)
-{
-    if (a == '0' || a == '1') {
-        out.push_back(a);
-    } else if (!out.empty()) {
-        out.pop_back();
-    }
-    return;
-}
+    string ans;
+    // 表示されている文字列
 
-
-int main()
-{
-    cin >> s;
-    for (size_t i = 0; i < s.size(); i++) {
-        ope(s[i]);
+    for (char c : S) {
+        if (c == 'B') {
+            // ansが既に空の場合に注意
+            if (!ans.empty()) ans.pop_back();
+        } else {
+            // 0か1の場合はそのまま末尾に挿入
+            ans.push_back(c);
+        }
     }
 
-    cout << out << endl;
+    cout << ans << endl;
     return 0;
 }

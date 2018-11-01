@@ -1,19 +1,14 @@
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-#include <vector>
-
-#define ll long long
 
 using namespace std;
 
-int N;
-
-int main()
-{
+int main() {
+    int N;
     cin >> N;
-    cout << N * (N + 1) / 2 << endl;
+    int ans = 0;
+    for (int i = 1; i <= N; ++i) {
+        ans += i;
+    }
+    cout << ans << endl;
     return 0;
 }
