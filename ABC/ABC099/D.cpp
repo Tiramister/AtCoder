@@ -1,185 +1,61 @@
-/* main code starts from line 133. */
-
-/* ---------- STL Libraries ---------- */
-
-// IO library
-#include <cstdio>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-
-// algorithm library
-#include <algorithm>
-#include <cmath>
-#include <numeric>
-
-// container library
-#include <array>
-#include <bitset>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
-#include <vector>
-
-/* ---------- Namespace ---------- */
 
 using namespace std;
 
-/* ---------- Type Abbreviation ---------- */
-
-template <typename T>
-using V = vector<T>;
-template <typename T, typename U>
-using P = pair<T, U>;
-template <typename T>
-using PQ = priority_queue<T>;
-template <typename T>
-using GPQ = priority_queue<T, vector<T>, greater<T>>;
-
-using ll = long long;
-
-#define fst first
-#define snd second
-#define pb push_back
-#define mp make_pair
-#define mt make_tuple
-
-/* ---------- conversion ---------- */
-
-#define INT(c) static_cast<int>(c)
-#define CHAR(n) static_cast<char>(n)
-#define LL(n) static_cast<ll>(n)
-#define DOUBLE(n) static_cast<double>(n)
-
-/* ---------- container ---------- */
-
-#define ALL(v) (v).begin(), (v).end()
-#define SIZE(v) (LL((v).size()))
-
-#define FIND(v, k) (v).find(k) != (v).end()
-#define VFIND(v, k) find(ALL(v), k) != (v).end()
-
-#define SORT(v) sort(ALL(v))
-#define GSORT(v) sort(ALL(v), greater<decltype((v).front())>())
-
-/* ---------- repetition ---------- */
-
-#define FOR(i, a, b) for (ll i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-
-#define RFOR(i, a, b) for (ll i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n - 1, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
-
-// Usual REP runs from 0 to n-1 (R: n-1 to 0)
-// Natural REP runs from 1 to n (R: n to 1)
-
-/* ---------- Short Functions ---------- */
-
-template <typename T>
-T sq(T a) {
-    return a * a;
-}
-
-#define fcout cout << fixed << setprecision(10)
-
-/* ----------- debug ---------- */
-
-template <typename T, typename U>
-void testP2(T a, U b) {
-    cout << "(" << a << ", " << b << ")" << endl;
-    return;
-}
-
-template <typename T>
-void testV(T v) {
-    cout << "[";
-    for (auto i : v) {
-        cout << i << ", ";
-    }
-    cout << "\b\b]" << endl;
-    return;
-}
-
-template <typename T>
-void testV2(T v) {
-    for (auto sv : v) {
-        testV(sv);
-    }
-    cout << endl;
-    return;
-}
-
-#define GET_VAR_NAME(variable) #variable
-#define test(x) cout << GET_VAR_NAME(x) << " = " << x << endl;
-#define testP(p)                      \
-    cout << GET_VAR_NAME(p) << " = "; \
-    testP2(p.fst, p.snd);
-
-/* ---------- Constants ---------- */
-
-// const ll MOD = 1e9 + 7;
-// const int INF = 1 << 25;
-const ll INF = 1LL << 50;
-// const double PI = acos(-1);
-// const double EPS = 1e-10;
-// const ll dx[4] = {0, -1, 1, 0};
-// const ll dy[4] = {-1, 0, 0, 1};
-// const ll dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const ll dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-/* v-v-v-v-v-v-v-v-v Main Part v-v-v-v-v-v-v-v-v */
-
-/* ---------- Type Definition ----------- */
-
-
-/* ---------- Global Variance ----------- */
-
-
-/* ------------- Functions -------------- */
-
-
-/* ----------- Main Function ------------ */
+const int INF = 1 << 30;
 
 int main() {
-    cin.tie(0);
-    ios::sync_with_stdio(false);
-
-    ll N, C;
+    int N, C;
     cin >> N >> C;
-    V<V<ll>> D(C + 1, V<ll>(C + 1));
-    NREP(i, C) {
-        NREP(j, C) {
+
+    int D[C][C];
+    for (int i = 0; i < C; ++i) {
+        for (int j = 0; j < C; ++j) {
             cin >> D[i][j];
         }
     }
 
-    V<V<ll>> cnt(3, V<ll>(C + 1, 0));
-    REP(i, N) {
-        REP(j, N) {
-            ll c;
-            cin >> c;
-            cnt[(i + j) % 3][c]++;
+    int cl[N][N];
+    for (int x = 0; x < N; ++x) {
+        for (int y = 0; y < N; ++y) {
+            cin >> cl[x][y];
+            --cl[x][y];
         }
     }
 
-    ll ans = INF;
-    V<ll> col(3);
-    for (col[0] = 1; col[0] <= C; col[0]++) {
-        for (col[1] = 1; col[1] <= C; col[1]++) {
-            for (col[2] = 1; col[2] <= C; col[2]++) {
-                if (col[0] == col[1] || col[1] == col[2] || col[2] == col[0]) continue;
+    int diff[3][C];
+    fill(diff[0], diff[3], 0);
+    // ゾーンiをcに変えるときの違和感
 
-                ll x = 0;
-                REP(g, 3) {
-                    NREP(c, C) {
-                        x += cnt[g][c] * D[c][col[g]];
-                    }
+    for (int x = 0; x < N; ++x) {
+        for (int y = 0; y < N; ++y) {
+            for (int c = 0; c < C; ++c) {
+                if (cl[x][y] == c) continue;
+                diff[(x + y) % 3][c] += D[cl[x][y]][c];
+            }
+        }
+    }
+
+    int ans = INF;
+    int a[3];
+    // ゾーンiをa[i]で塗る
+
+    for (a[0] = 0; a[0] < C; ++a[0]) {
+        for (a[1] = 0; a[1] < C; ++a[1]) {
+            for (a[2] = 0; a[2] < C; ++a[2]) {
+                // a[i]間に重複がないか判定
+                bool dup = false;
+                for (int i = 0; i < 3; ++i) {
+                    if (a[i] == a[(i + 1) % 3]) dup = true;
+                }
+                if (dup) continue;
+
+                int cost = 0;
+                for (int i = 0; i < 3; ++i) {
+                    cost += diff[i][a[i]];
                 }
 
-                ans = min(ans, x);
+                ans = min(ans, cost);
             }
         }
     }
