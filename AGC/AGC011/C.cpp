@@ -2,22 +2,29 @@
 #include <vector>
 
 using namespace std;
+
 using ll = long long;
+
+template <typename T>
+T sq(T a) {
+    return a * a;
+}
 
 vector<int> path[100010];
 int d[100010];
-// 各頂点を0と1で塗り分ける
 
-// 二部グラフならtrue
-bool dfs(ll v, ll t) {
-    if (d[v] >= 0) {
-        return t == d[v];
-    }
+// vを含む連結成分に奇数長の閉路が含まれるか
+bool dfs(int v) {
+    bool ret = false;
 
-    d[v] = t;
-    bool ret = true;
-    for (ll sv : path[v]) {
-        ret &= dfs(sv, 1 - t);
+    for (int sv : path[v]) {
+        if (d[sv] < 0) {
+            d[sv] = d[v] + 1;
+            ret = dfs(sv) || ret;
+        } else if ((d[v] - d[sv]) % 2 == 0) {
+            // 奇数長閉路判定
+            ret = true;
+        }
     }
 
     return ret;
@@ -27,39 +34,36 @@ int main() {
     ll N, M;
     cin >> N >> M;
 
-    for (ll i = 0; i < M; ++i) {
-        ll a, b;
-        cin >> a >> b;
-        --a;
-        --b;
-        path[a].push_back(b);
-        path[b].push_back(a);
+    for (int i = 0; i < M; ++i) {
+        int u, v;
+        cin >> u >> v;
+        --u, --v;
+        path[u].push_back(v);
+        path[v].push_back(u);
     }
 
-    // 未探索なら-1にする
+    ll single = 0, odd = 0, even = 0;
+    // single = 頂点数1の連結成分(孤立点)の数
+    // odd = 奇数長の閉路をもつ連結成分の数
+    // even = それ以外の連結成分の数
+
     fill(d, d + N, -1);
 
-    ll odd = 0, even = 0, one = 0;
-    // 二部グラフ、二部グラフでない、孤立点の連結成分
-
-    for (ll v = 0; v < N; ++v) {
-        // 探索済みならパス
+    for (int v = 0; v < N; ++v) {
         if (d[v] >= 0) continue;
 
-        // 孤立点判定
+        d[v] = 0;
         if (path[v].empty()) {
-            ++one;
-            continue;
-        }
-
-        // 二部グラフ判定
-        if (dfs(v, 0)) {
-            ++even;
+            ++single;
         } else {
-            ++odd;
+            if (dfs(v)) {
+                ++odd;
+            } else {
+                ++even;
+            }
         }
     }
 
-    cout << N * N - (N - one) * (N - one) + (odd + even) * (odd + even) + even * even << endl;
+    cout << sq(N) - sq(N - single) + sq(even + odd) + sq(even) << endl;
     return 0;
 }
