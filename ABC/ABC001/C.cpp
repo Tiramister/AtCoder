@@ -1,26 +1,17 @@
-#include <algorithm>
-#include <cmath>
 #include <iostream>
-#include <vector>
-
-#define ll long long
 
 using namespace std;
 
-int Deg, Dis;
-string dir[17] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"};
-int power;
+const string dir[17] = {"N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"};
 
-int main()
-{
+int main() {
+    int Deg, Dis;
     cin >> Deg >> Dis;
 
+    int power = 0;
     if (Dis < 15) {
-        power = 0;
-
         cout << "C " << 0 << endl;
         return 0;
-
     } else if (Dis < 93) {
         power = 1;
     } else if (Dis < 201) {
