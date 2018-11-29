@@ -1,7 +1,4 @@
 #include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
 #include <vector>
 
@@ -9,27 +6,24 @@
 
 using namespace std;
 
-int N, sum;
-vector<int> a;
-
-int main()
-{
+int main() {
+    int N;
     cin >> N;
-    a.resize(N);
+    int a[N];
     for (int i = 0; i < N; i++) {
         cin >> a[i];
     }
 
-    sort(a.begin(), a.end());
+    // 降順ソート
+    sort(a, a + N, greater<int>());
 
+    int ans = 0;
     for (int i = 0; i < N; i++) {
-        if (i % 2 > 0) {
-            sum -= a[N - i - 1];
-        } else {
-            sum += a[N - i - 1];
-        }
+        // 偶数ならAliceが取るのでplus
+        // 奇数ならBobが取るのでminus
+        ans += a[i] * (i % 2 == 0 ? 1 : -1);
     }
 
-    cout << sum << endl;
+    cout << ans << endl;
     return 0;
 }
