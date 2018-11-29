@@ -1,20 +1,19 @@
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-#include <vector>
-
-#define ll long long
+#include <string>
 
 using namespace std;
 
-string s;
-string order[2] = {"First", "Second"};
+int main() {
+    const string player[2] = {"First", "Second"};
 
-int main()
-{
+    string s;
     cin >> s;
-    cout << order[((s.front() != s.back()) + s.size()) % 2] << endl;
+
+    // sの長さの偶奇がベース
+    int ans = s.size() % 2;
+    // sの先頭と末尾が一致するかで答えが反転する
+    if (s.front() != s.back()) ans = 1 - ans;
+
+    cout << player[ans] << endl;
     return 0;
 }
