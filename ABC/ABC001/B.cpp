@@ -1,23 +1,14 @@
-#include <algorithm>
-#include <cmath>
 #include <iomanip>
-#include <ios>
 #include <iostream>
-#include <vector>
-
-#define ll long long
 
 using namespace std;
 
-int m, VV;
-
-int main()
-{
+int main() {
+    int m;
     cin >> m;
 
-    if (m < 100) {
-        VV = 0;
-    } else if (m <= 5000) {
+    int VV = 0;
+    if (m <= 5000) {
         VV = m / 100;
     } else if (m <= 30000) {
         VV = m / 1000 + 50;
@@ -27,7 +18,6 @@ int main()
         VV = 89;
     }
 
-    cout << setfill('0') << setw(2) << right << VV << endl;
-
+    cout << setw(2) << setfill('0') << VV << endl;
     return 0;
 }
