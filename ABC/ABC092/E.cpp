@@ -1,84 +1,126 @@
-// IO library
-#include <cstdio>
-#include <iomanip>
-#include <ios>
-#include <iostream>
-
-// algorithm library
 #include <algorithm>
-#include <cmath>
-#include <numeric>
-
-// container library
-#include <deque>
-#include <list>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
+#include <iostream>
+#include <tuple>
 #include <vector>
 
-// namespace
 using namespace std;
+using ll = long long;
 
-// typedef
-typedef long long ll;
-typedef vector<int> VI;
-typedef vector<VI> VVI;
-typedef vector<ll> VL;
-typedef vector<VL> VVL;
-typedef vector<string> VS;
-typedef vector<bool> VB;
-typedef vector<VB> VVB;
+const ll MOD = 1000000007;
 
-// conversion
-#define INT(c) static_cast<int>(c)
-#define CHAR(n) static_cast<char>(n)
-#define LL(n) static_cast<ll>(n)
+template <typename T, typename U>
+T mypow(T b, U n) {
+    if (n == 0) return 1;
+    if (n == 1) return b % MOD;
+    if (n % 2 == 0) {
+        return mypow(b * b % MOD, n / 2);
+    } else {
+        return mypow(b, n - 1) * b % MOD;
+    }
+}
 
-// container
-#define EACH(i, c) for (auto i = (c).begin(); i != (c).end(); i++)
-#define SORT(c) sort((c).begin(), (c).end())
-#define GSORT(c) sort((c).begin(), (c).end(), greater<decltype((c).front())>())
-#define SZ(x) (INT((x).size()))
-#define MEMSET(c, v) memset((c), v, sizeof(c))
+class UnionFind {
+public:
+    explicit UnionFind(int N) : V_NUM(N) {
+        par.resize(V_NUM);
+        rank.resize(V_NUM);
+        num.resize(V_NUM);
 
-// repetition
-#define FOR(i, a, b) for (int i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-#define RFOR(i, a, b) for (int i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
+        for (int i = 0; i < V_NUM; ++i) {
+            par[i] = i;
+        }
+        fill(rank.begin(), rank.end(), 0);
+        fill(num.begin(), num.end(), 1);
+    }
 
-// constant
-// const ll MOD = 1e9 + 7;
-// const int INF = 1<<25;
-// const ll INF = 1LL<<50;
-// const int dx[4] = {0, -1, 1, 0};
-// const int dy[4] = {-1, 0, 0, 1};
-// const int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int find(int x) {
+        if (par[x] == x) {
+            return x;
+        } else {
+            return par[x] = find(par[x]);
+        }
+    }
 
-// debug
-#define test(x) cout << #x << " = " << x << endl
+    void unite(int x, int y) {
+        x = find(x);
+        y = find(y);
 
-// answer output
-#define Yes(c) cout << ((c) ? "Yes" : "No") << endl;
-#define YES(c) cout << ((c) ? "YES" : "NO") << endl;
-#define yes(c) cout << ((c) ? "yes" : "no") << endl;
+        if (x == y) return;
 
-#define possible(c) cout << ((c) ? "possible" : "impossible") << endl;
-#define POSSIBLE(c) cout << ((c) ? "POSSIBLE" : "INPOSSIBLE") << endl;
+        if (rank[x] < rank[y]) swap(x, y);
+
+        num[x] += num[y];
+        par[y] = x;
+        if (rank[x] == rank[y]) ++rank[x];
+    }
+
+    bool same(int x, int y) {
+        return find(x) == find(y);
+    }
+
+    bool ispar(int x) {
+        return x == find(x);
+    }
+
+    int size(int x) {
+        return num[find(x)];
+    }
+
+    const int INF = 1 << 25;
+    int V_NUM;
+    vector<int> par, rank, num;
+};
 
 
-// --------------------------------------------------------
+int N, M;
+tuple<ll, int, int> edges[2010];
 
+ll kruskal(int id) {
+    UnionFind uf(N);
+
+    int u, v;
+    ll w;
+
+    tie(w, u, v) = edges[id];
+    ll ret = w;
+    uf.unite(u, v);
+
+    for (int i = 0; i < M; ++i) {
+        tie(w, u, v) = edges[i];
+        if (uf.same(u, v)) continue;
+
+        ret += w;
+        uf.unite(u, v);
+    }
+
+    return ret;
+}
 
 int main() {
-  cin.tie(0);
-  ios::sync_with_stdio(false);
+    ll X;
+    cin >> N >> M >> X;
 
+    for (int i = 0; i < M; ++i) {
+        int u, v;
+        ll w;
+        cin >> u >> v >> w;
+        edges[i] = make_tuple(w, u - 1, v - 1);
+    }
 
-  return 0;
+    sort(edges, edges + M);
+
+    int cnt[3] = {0, 0, 0};
+    for (int i = 0; i < M; ++i) {
+        ll cost = kruskal(i);
+        ++cnt[cost < X ? 0 : (cost == X ? 1 : 2)];
+    }
+
+    if (cnt[1] == 0) {
+        cout << 0 << endl;
+    } else if (cnt[0] == 0) {
+        cout << (mypow(2LL, cnt[1]) - 2) * mypow(2LL, cnt[2]) % MOD << endl;
+    } else {
+        cout << 2 * (mypow(2LL, cnt[1]) - 1) * mypow(2LL, cnt[2]) % MOD << endl;
+    }
+    return 0;
 }

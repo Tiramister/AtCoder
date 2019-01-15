@@ -1,84 +1,67 @@
-// IO library
-#include <cstdio>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-
-// algorithm library
-#include <algorithm>
-#include <cmath>
-#include <numeric>
-
-// container library
-#include <deque>
-#include <list>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
 #include <vector>
 
-// namespace
 using namespace std;
+using ll = long long;
 
-// typedef
-typedef long long ll;
-typedef vector<int> VI;
-typedef vector<VI> VVI;
-typedef vector<ll> VL;
-typedef vector<VL> VVL;
-typedef vector<string> VS;
-typedef vector<bool> VB;
-typedef vector<VB> VVB;
+const ll MOD = 1000000007;
 
-// conversion
-#define INT(c) static_cast<int>(c)
-#define CHAR(n) static_cast<char>(n)
-#define LL(n) static_cast<ll>(n)
+template <typename T>
+T gcd(T a, T b) {
+    if (a > b) return gcd(b, a);
+    return a == 0 ? b : gcd(b % a, a);
+}
 
-// container
-#define EACH(i, c) for (auto i = (c).begin(); i != (c).end(); i++)
-#define SORT(c) sort((c).begin(), (c).end())
-#define GSORT(c) sort((c).begin(), (c).end(), greater<decltype((c).front())>())
-#define SZ(x) (INT((x).size()))
-#define MEMSET(c, v) memset((c), v, sizeof(c))
+vector<ll> factor(ll K) {
+    vector<ll> ret;
+    ll L = K;
+    for (ll k = 2; k * k <= L; ++k) {
+        if (K % k == 0) {
+            ret.push_back(k);
+            while (K % k == 0) {
+                K /= k;
+            }
+        }
+    }
+    if (K > 1) ret.push_back(K);
+    return ret;
+}
 
-// repetition
-#define FOR(i, a, b) for (int i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-#define RFOR(i, a, b) for (int i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
+ll calc(ll N, ll K) {
+    vector<ll> primes = factor(K);
+    ll L = primes.size();
 
-// constant
-// const ll MOD = 1e9 + 7;
-// const int INF = 1<<25;
-// const ll INF = 1LL<<50;
-// const int dx[4] = {0, -1, 1, 0};
-// const int dy[4] = {-1, 0, 0, 1};
-// const int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    ll ret = 0;
+    for (int b = 0; b < (1 << L); ++b) {
+        ll p = 1;
+        for (int i = 0; i < L; ++i) {
+            if ((b >> i) & 1) p *= primes[i];
+        }
 
-// debug
-#define test(x) cout << #x << " = " << x << endl
+        ll l = N / p;
+        ll sum = l * (l + 1) / 2 % MOD * p % MOD;
 
-// answer output
-#define Yes(c) cout << ((c) ? "Yes" : "No") << endl;
-#define YES(c) cout << ((c) ? "YES" : "NO") << endl;
-#define yes(c) cout << ((c) ? "yes" : "no") << endl;
-
-#define possible(c) cout << ((c) ? "possible" : "impossible") << endl;
-#define POSSIBLE(c) cout << ((c) ? "POSSIBLE" : "INPOSSIBLE") << endl;
-
-
-// --------------------------------------------------------
-
+        ret += ((__builtin_popcountll(b) % 2) ? MOD - sum : sum);
+        ret %= MOD;
+    }
+    return ret;
+}
 
 int main() {
-  cin.tie(0);
-  ios::sync_with_stdio(false);
+    ll N, K;
+    cin >> N >> K;
 
+    ll ans = 0;
+    for (ll k = 1; k * k <= K; ++k) {
+        if (K % k > 0) continue;
+        ans += calc(N / k, K / k) * k % MOD * (K / gcd(k, K)) % MOD;
+        ans %= MOD;
 
-  return 0;
+        if (k * k == K) continue;
+        ans += calc(N / (K / k), k) * (K / k) % MOD * (K / gcd(K / k, K)) % MOD;
+        ans %= MOD;
+    }
+
+    cout << ans << endl;
+    return 0;
 }
