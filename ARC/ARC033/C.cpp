@@ -1,196 +1,74 @@
-/* main code starts from line 133. */
-
-/* ---------- STL Libraries ---------- */
-
-// IO library
-#include <cstdio>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-
-// algorithm library
-#include <algorithm>
-#include <cmath>
-#include <numeric>
-
-// container library
-#include <array>
-#include <bitset>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
 #include <vector>
-
-/* ---------- Namespace ---------- */
 
 using namespace std;
 
-/* ---------- Type Abbreviation ---------- */
+const int MAX_V = 200010;
 
-template <typename T>
-using V = vector<T>;
-template <typename T, typename U>
-using P = pair<T, U>;
-template <typename T>
-using PQ = priority_queue<T>;
-template <typename T>
-using GPQ = priority_queue<T, vector<T>, greater<T>>;
-
-using ll = long long;
-
-#define fst first
-#define snd second
-#define pb push_back
-#define mp make_pair
-#define mt make_tuple
-
-/* ---------- conversion ---------- */
-
-#define INT(c) static_cast<int>(c)
-#define CHAR(n) static_cast<char>(n)
-#define LL(n) static_cast<ll>(n)
-#define DOUBLE(n) static_cast<double>(n)
-
-/* ---------- container ---------- */
-
-#define ALL(v) (v).begin(), (v).end()
-#define SIZE(v) (LL((v).size()))
-
-#define FIND(v, k) (v).find(k) != (v).end()
-#define VFIND(v, k) find(ALL(v), k) != (v).end()
-
-#define SORT(v) sort(ALL(v))
-#define GSORT(v) sort(ALL(v), greater<decltype((v).front())>())
-
-/* ---------- repetition ---------- */
-
-#define FOR(i, a, b) for (ll i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-
-#define RFOR(i, a, b) for (ll i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n - 1, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
-
-// Usual REP runs from 0 to n-1 (R: n-1 to 0)
-// Natural REP runs from 1 to n (R: n to 1)
-
-/* ---------- Short Functions ---------- */
-
-template <typename T>
-T sq(T a) {
-    return a * a;
-}
-
-#define fcout cout << fixed << setprecision(10)
-
-/* ----------- debug ---------- */
-
-template <typename T, typename U>
-void testP2(T a, U b) {
-    cout << "(" << a << ", " << b << ")" << endl;
-    return;
-}
-
-template <typename T>
-void testV(T v) {
-    cout << "[";
-    for (auto i : v) {
-        cout << i << ", ";
-    }
-    cout << "\b\b]" << endl;
-    return;
-}
-
-template <typename T>
-void testV2(T v) {
-    for (auto sv : v) {
-        testV(sv);
-    }
-    cout << endl;
-    return;
-}
-
-#define GET_VAR_NAME(variable) #variable
-#define test(x) cout << GET_VAR_NAME(x) << " = " << x << endl;
-#define testP(p)                      \
-    cout << GET_VAR_NAME(p) << " = "; \
-    testP2(p.fst, p.snd);
-
-/* ---------- Constants ---------- */
-
-// const ll MOD = 1e9 + 7;
-// const int INF = 1 << 25;
-// const ll INF = 1LL << 50;
-// const double PI = acos(-1);
-// const double EPS = 1e-10;
-// const ll dx[4] = {0, -1, 1, 0};
-// const ll dy[4] = {-1, 0, 0, 1};
-// const ll dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const ll dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-/* v-v-v-v-v-v-v-v-v Main Part v-v-v-v-v-v-v-v-v */
-
-/* ---------- Type Definition ----------- */
-
-const ll MAX_V = 400010;
-
+template <class Type>
 class BIT {
 public:
-    array<ll, MAX_V> data{{}};
-
-    ll query(ll i) {
-        ll ret = 0;
-        while (i > 0) {
-            ret += data[i];
-            i -= (i & -i);
-        }
-        return ret;
+    // 要素数length、値valueで初期化
+    explicit BIT(int length, Type value) : length(length) {
+        data.assign(length + 1, value);
     }
 
-    void add(ll i, ll v) {
-        while (i < MAX_V) {
-            data[i] += v;
-            i += (i & -i);
+    // [1, index]の総和を求める
+    Type query(int index) const {
+        Type sum = 0;
+        while (index > 0) {
+            sum += data[index];
+            index -= (index & -index);
+        }
+        return sum;
+    }
+
+    // index番目にdiffを加算
+    void update(int index, Type diff) {
+        while (index < length) {
+            data[index] += diff;
+            index += (index & -index);
         }
     }
+
+    int length;
+    std::vector<Type> data;
 };
 
-/* ---------- Global Variance ----------- */
+template <class Type>
+std::ostream& operator<<(std::ostream& os, const BIT<Type>& bit) {
+    os << "[";
+    for (int i = 1; i <= bit.length; ++i) {
+        os << bit.query(i) << ",";
+    }
+    return os << "]";
+}
 
-
-/* ------------- Functions -------------- */
-
-
-/* ----------- Main Function ------------ */
 
 int main() {
-    cin.tie(0);
-    ios::sync_with_stdio(false);
-
-    ll Q;
+    int Q;
     cin >> Q;
 
-    BIT bit;
-    REP(_, Q) {
-        ll T, X;
+    BIT<int> bit(MAX_V, 0);
+    for (int q = 0; q < Q; ++q) {
+        int T, X;
         cin >> T >> X;
         if (T == 1) {
-            bit.add(X, 1);
+            bit.update(X, 1);
         } else {
-            ll ok = 0, ng = 200000;
-            while (ng - ok > 1) {
-                ll mid = (ok + ng) / 2;
-                if (bit.query(mid) < X) {
+            int ok = MAX_V, ng = 0;
+            while (ok - ng > 1) {
+                int mid = (ok + ng) / 2;
+                if (bit.query(mid) >= X) {
                     ok = mid;
                 } else {
                     ng = mid;
                 }
             }
-            cout << ok + 1 << endl;
-            bit.add(ok + 1, -1);
+            cout << ok << endl;
+            bit.update(ok, -1);
         }
+        // cout << q << ":" << bit << endl;
     }
     return 0;
 }
