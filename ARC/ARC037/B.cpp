@@ -1,171 +1,71 @@
-/* ↓↓↓ メインコード23行目から ↓↓↓*/
-
-/* ---------- STL Libraries ---------- */
-
-// IO library
-#include <cstdio>
-#include <iomanip>
-#include <ios>
 #include <iostream>
-
-// algorithm library
-#include <algorithm>
-#include <cmath>
 #include <numeric>
-
-// container library
-#include <deque>
-#include <list>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
 #include <vector>
-
-
-/* ---------- Namespace ---------- */
 
 using namespace std;
 
-
-/* ---------- Type Abbreviation ---------- */
-
-template <typename T>
-using V = vector<T>;
-template <typename T, typename U>
-using P = pair<T, U>;
-
-using ll = long long;
-using PL = P<ll, ll>;
-using PS = P<string, ll>;
-
-using VI = V<int>;
-using VVI = V<VI>;
-using VL = V<ll>;
-using VVL = V<VL>;
-using VS = V<string>;
-using VB = V<bool>;
-using VVB = V<VB>;
-using VPL = V<PL>;
-using VPS = V<PS>;
-
-#define fst first
-#define snd second
-#define pb push_back
-
-
-/* ---------- conversion ---------- */
-
-#define INT(c) static_cast<int>(c)
-#define CHAR(n) static_cast<char>(n)
-#define LL(n) static_cast<ll>(n)
-#define DOUBLE(n) static_cast<double>(n)
-
-
-/* ---------- container ---------- */
-
-#define ALL(v) (v).begin(), (v).end()
-#define SIZE(v) (LL((v).size()))
-
-#define FIND(v, k) (v).find(k) != (v).end()
-#define EACH(itr, v) for (auto itr = (v).begin(); itr != (v).end(); itr++)
-#define REACH(i, v) for (auto itr = (v).rbegin(); itr != (v).rend(); itr++)
-
-#define SORT(v) sort(ALL(v))
-#define GSORT(v) sort(ALL(v), greater<decltype((v).front())>())
-
-
-/* ---------- repetition ---------- */
-
-#define FOR(i, a, b) for (ll i = (a); i < (b); i++)
-#define REP(i, n) FOR(i, 0, n)
-#define NREP(i, n) FOR(i, 1, n + 1)
-
-#define RFOR(i, a, b) for (ll i = (a); i >= (b); i--)
-#define RREP(i, n) RFOR(i, n - 1, 0)
-#define RNREP(i, n) RFOR(i, n, 1)
-
-// Usual REP runs from 0 to n-1 (R: n-1 to 0)
-// Natural REP runs from 1 to n (R: n to 1)
-
-
-/* ---------- Constants ---------- */
-
-// const ll MOD = 1e9 + 7;
-// const int INF = 1 << 25;
-// const ll INF = 1LL << 50;
-// const double PI = 3.14159265358979;
-// const ll dx[4] = {0, -1, 1, 0};
-// const ll dy[4] = {-1, 0, 0, 1};
-// const ll dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-// const ll dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-
-
-/* ---------- Short Functions ---------- */
-
-template <typename T>
-T sq(T a) {
-    return a * a;
-}
-
-
-/* ---------- Debug ---------- */
-
-#define GET_VAR_NAME(variable) #variable
-
-#define test(x) cout << GET_VAR_NAME(x) << " = " << x << endl;
-#define testP(p) cout << GET_VAR_NAME(p) << " = (" << (p).fst << ", " << (p).snd << ")" << endl;
-#define testP2(a, b) cout << "(" << a << ", " << b << ")" << endl;
-
-
-/* v-v-v-v-v-v-v-v-v Main Part v-v-v-v-v-v-v-v-v */
-
-/* ---------- Global Variance ----------- */
-
-VVL path(110);
-VB visited(110, false);
-
-/* ------------- Functions -------------- */
-
-bool dfs(ll v) {
-    if (visited[v]) return false;
-
-    visited[v] = true;
-    bool noroop = true;
-    while (!path[v].empty()) {
-        ll sv = path[v].back();
-        path[v].pop_back();
-        path[sv].erase(find(ALL(path[sv]), v));
-
-        if (!dfs(sv)) noroop = false;
+class UnionFind {
+public:
+    explicit UnionFind(int N) : V_NUM(N) {
+        par.resize(N);
+        iota(par.begin(), par.end(), 0);
+        num.assign(N, 1);
     }
 
-    return noroop;
-}
-
-/* ----------- Main Function ------------ */
-
-int main() {
-    cin.tie(0);
-    ios::sync_with_stdio(false);
-
-    ll N, M;
-    cin >> N >> M;
-
-    REP(i, M) {
-        ll u, v;
-        cin >> u >> v;
-        path[u].pb(v);
-        path[v].pb(u);
-    }
-
-    ll ans = 0;
-    NREP(i, N) {
-        if (!visited[i]) {
-            if (dfs(i)) ans++;
+    int find(int x) {
+        if (par[x] == x) {
+            return x;
+        } else {
+            return par[x] = find(par[x]);
         }
     }
 
+    void unite(int x, int y) {
+        x = find(x);
+        y = find(y);
+
+        if (x == y) return;
+
+        if (num[x] < num[y]) swap(x, y);
+
+        num[x] += num[y];
+        par[y] = x;
+    }
+
+    bool same(int x, int y) { return find(x) == find(y); }
+    bool ispar(int x) { return x == find(x); }
+    int size(int x) { return num[find(x)]; }
+
+    int V_NUM;
+    vector<int> par, num;
+};
+
+int main() {
+    int N, M;
+    cin >> N >> M;
+
+    UnionFind uf(N);
+
+    int u[M], v[M];
+    for (int i = 0; i < M; ++i) {
+        cin >> u[i] >> v[i];
+        --u[i], --v[i];
+        uf.unite(u[i], v[i]);
+    }
+
+    int edge[N];
+    fill(edge, edge + N, 0);
+    // 各集合に属する辺の数
+
+    for (int i = 0; i < M; ++i) {
+        ++edge[uf.find(u[i])];
+    }
+
+    int ans = 0;
+    for (int g = 0; g < N; ++g) {
+        // 木の条件: 頂点数-辺数=1
+        if (uf.size(g) - edge[g] == 1) ++ans;
+    }
+
     cout << ans << endl;
-    return 0;
 }
