@@ -1,47 +1,44 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 using ll = long long;
 
 const ll MOD = 1000000007;
 
-int D;
-ll dp[10010][100];
-
-// k % D = d (0 <= k <= K)
-ll rec(const string& K, int d) {
-    if (K.empty()) return d == 0;
-
-    ll ret = 0;
-
-    int t = K.front() - '0';
-
-    // [t00~000, K]
-    ret = rec(K.substr(1), (d + D - t) % D);
-
-    for (int k = 0; k < t; ++k) {
-        // [k00~000, k99~999]
-        ret += dp[K.size() - 1][(d + D - k) % D];
-    }
-
-    return ret % MOD;
-}
-
 int main() {
-    string K;
-    cin >> K >> D;
+    string k;
+    int d;
+    cin >> k >> d;
+    reverse(k.begin(), k.end());
 
-    dp[0][0] = 1;
-    for (int n = 1; n <= 10000; ++n) {
-        for (int d = 0; d < D; ++d) {
-            for (int k = 0; k < 10; ++k) {
-                dp[n][(k + d) % D] += dp[n - 1][d];
-                dp[n][(k + d) % D] %= MOD;
+    int n = k.length();
+    ll dp[n + 1][d][2];
+    fill(dp[0][0], dp[n + 1][0], 0);
+    dp[0][0][0] = dp[0][0][1] = 1;
+
+    for (int m = 1; m <= n; ++m) {
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < d; ++j) {
+                dp[m][(i + j) % d][0] += dp[m - 1][j][0];
+                dp[m][(i + j) % d][0] %= MOD;
             }
+        }
+
+        int p = k[m - 1] - '0';
+        for (int i = 0; i < p; ++i) {
+            for (int j = 0; j < d; ++j) {
+                dp[m][(i + j) % d][1] += dp[m - 1][j][0];
+                dp[m][(i + j) % d][1] %= MOD;
+            }
+        }
+
+        for (int j = 0; j < d; ++j) {
+            dp[m][(p + j) % d][1] += dp[m - 1][j][1];
+            dp[m][(p + j) % d][1] %= MOD;
         }
     }
 
-    cout << (rec(K, 0) + MOD - 1) % MOD << endl;
-    return 0;
+    cout << (dp[n][0][1] + MOD - 1) % MOD << endl;
 }
